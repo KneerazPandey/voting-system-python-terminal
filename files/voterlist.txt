@@ -1,0 +1,10 @@
+1|Kneeraz|2002/03/03|Itahari|password
+2|Unique|2002/02/02|Itahari|password
+
+3|Niraj|2002/02/02|itahari|password
+
+
+4|Niraj|2002/02/02|Itahari|password
+5|Unique|2002/02/02|Pokhara|password
+6|hello|2002/03/03|Dharan|password
+7|Parbata|2002/02/02|Kathamndu|password
