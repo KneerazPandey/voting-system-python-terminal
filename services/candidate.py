@@ -119,6 +119,7 @@ class CandidateService:
                         
                         if candidate.id == id:
                             exists = True
+                            continue
                         else:
                             candidate_details = f'{candidate.id}|{candidate.name}|{candidate.party}|{candidate.address}\n'
                             temp_file.write(candidate_details)
@@ -153,7 +154,7 @@ class CandidateService:
         }
         
     def update_prompt(self):
-        id = prompt_update_id(prompt_for='Enter candidate id: ')
+        id = prompt_update_id(prompt_for='Enter candidate id to be updated: ')
         
         if not self.get_candidate_by_id(id=id):
             return {'id': id, 'found': False }
@@ -167,6 +168,7 @@ class CandidateService:
             'name': name,
             'party': party, 
             'address': address,
+            'found': True,
         }
         
     def delete_prompt(self):
@@ -180,6 +182,9 @@ class CandidateService:
             with open(CANDIDATE_FILE_NAME, 'r') as file:
                 for line in file:
                     candidate: Candidate = Candidate.from_file_line(line)
+                    if not candidate:
+                        continue
+                    
                     if candidate.id == id:
                         return candidate
                     

@@ -286,7 +286,7 @@ class VoterService:
     def update_prompt(self):
         id = prompt_update_id(prompt_for='Enter voter id to be updated: ')
         
-        if not self.get_voter_by_id(id=id):
+        if self.get_voter_by_id(id=id) is None:
             return {'id': id, 'found': False }
         
         name = prompt_name(is_add=False, prompt_for='Enter new voter name: ')
@@ -300,6 +300,7 @@ class VoterService:
             'date_of_birth': date_of_birth,
             'address': address,
             'password': password, 
+            'found': True,
         }
         
     def delete_prompt(self):
@@ -335,7 +336,7 @@ class VoterService:
             with open(VOTER_FILE_NAME, 'r') as file:
                 for line in file:
                     voter: Voter = Voter.from_file_line(line)
-                    if voter is None:
+                    if not voter:
                         continue
                     
                     if voter.id == id:
@@ -351,7 +352,6 @@ class VoterService:
             print(f'\n❌ Error occured while reading {VOTER_FILE_NAME} file. ❌\n')
             return None 
          
-        return None
         
     
     def is_credentials_valid(self, id, password):
