@@ -9,7 +9,10 @@ class Candidate:
     def from_file_line(cls, line: str):
         datas = line.split('|')
         try:
-            return cls(int(datas[0]), datas[1], datas[2], datas[3].removesuffix("\n"))
+            if datas[3].endswith("\n"):
+                return cls(int(datas[0]), datas[1], datas[2], datas[3].removesuffix("\n"))
+            else:
+                return cls(int(datas[0]), datas[1], datas[2], datas[3])
         except Exception:
             return None 
         
