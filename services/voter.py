@@ -68,73 +68,12 @@ class VoterService:
         id = datas['id']
         password = datas['password']
         
-        if not self.is_credentials_valid(id=id, password=password):
+        if self.is_credentials_valid(id=id, password=password):
+            self._cast_vote()
+        else:
             print('\n❌ Invalid username or password. ❌\n')
             Menu.displayMainMenu()
-            return 
         
-
-        if not self.is_election_today():
-            print('\n❌ There is no voting todays. Please view the voting details ❌\n')
-            election_schedule_service = ElectionScheduleService()
-            election_schedule_service.list()
-            Menu.displayMainMenu()
-            return
-        
-        if self.has_already_cast_vote():
-            print('\n❌ You have already cast todays vote. ❌\n')
-            Menu.displayMainMenu()
-            return
-        
-        candidate_service = CandidateService()
-        candidate_service.list()
-        
-        candidate_id = self.candidate_prompt()
-        candidate = candidate_service.get_candidate_by_id(id=candidate_id)
-        
-        if not candidate:
-            print('\n❌ The candidate you want to vote does not exists. ❌\n')
-            Menu.displayMainMenu()
-            return
-        
-        found = False 
-        temp_file = open(TEMPORARY_FILE_NAME,'a+')
-        voting_date = f'{VoterService.CURRENT_DATE.year}/{VoterService.CURRENT_DATE.month}/{VoterService.CURRENT_DATE.day}'
-        try:
-            
-            with open(VOTER_COUNT_FILE_NAME, 'r') as file:
-                for line in file:
-                    vote_count: VoteCount = VoteCount.from_file_line(line)
-                    if vote_count.candidate.id == candidate_id:
-                        found = True
-                        result = f'{vote_count.candidate.id}|{vote_count.candidate.name}|{vote_count.candidate.party}|{vote_count.candidate.address}|{voting_date}|{vote_count.count + 1}\n'
-                        temp_file.write(result)  
-                    else:
-                        result = f'{vote_count.candidate.id}|{vote_count.candidate.name}|{vote_count.candidate.party}|{vote_count.candidate.address}|{voting_date}|{vote_count.count}\n'  
-                        temp_file.write(result)
-        except FileNotFoundError:
-            result = f'{candidate_id}|{candidate.name}|{candidate.party}|{candidate.address}|{voting_date}|1\n'  
-            temp_file.write(result)
-            temp_file.close()
-            found = True 
-            
-        if not found:
-            result = f'{candidate_id}|{candidate.name}|{candidate.party}|{candidate.address}|{voting_date}|1\n'  
-            temp_file.write(result)
-        
-        temp_file.close()
-        if os.path.exists(VOTER_COUNT_FILE_NAME):
-            os.remove(VOTER_COUNT_FILE_NAME)
-        
-        if os.path.exists(TEMPORARY_FILE_NAME):
-            os.rename(TEMPORARY_FILE_NAME, VOTER_COUNT_FILE_NAME)
-        
-        print('----------------------------------------------------')
-        print('✔️      You have successfully cast your vote      ✔️')
-        print('----------------------------------------------------')
-        
-        Menu.displayMainMenu()
-                
     
     def _add(self, name, date_of_birth, address, password):
         id = get_auto_increment_id(VOTER_FILE_NAME)
@@ -232,6 +171,70 @@ class VoterService:
         except PermissionError:
             print(f'\n❌ The voter file does not have read/write permission. ❌\n') 
             Menu.displayAdminMenu()
+            
+    
+    def _cast_vote(self):
+        if not self.is_election_today():
+            print('\n❌ There is no voting todays. Please view the voting details ❌\n')
+            election_schedule_service = ElectionScheduleService()
+            election_schedule_service.list()
+            Menu.displayMainMenu()
+            return
+        
+        if self.has_already_cast_vote():
+            print('\n❌ You have already cast todays vote. ❌\n')
+            Menu.displayMainMenu()
+            return
+        
+        candidate_service = CandidateService()
+        candidate_service.list()
+        
+        candidate_id = self.candidate_prompt()
+        candidate = candidate_service.get_candidate_by_id(id=candidate_id)
+        
+        if not candidate:
+            print('\n❌ The candidate you want to vote does not exists. ❌\n')
+            Menu.displayMainMenu()
+            return
+        
+        found = False 
+        temp_file = open(TEMPORARY_FILE_NAME,'a+')
+        voting_date = f'{VoterService.CURRENT_DATE.year}/{VoterService.CURRENT_DATE.month}/{VoterService.CURRENT_DATE.day}'
+        try:
+            
+            with open(VOTER_COUNT_FILE_NAME, 'r') as file:
+                for line in file:
+                    vote_count: VoteCount = VoteCount.from_file_line(line)
+                    if vote_count.candidate.id == candidate_id:
+                        found = True
+                        result = f'{vote_count.candidate.id}|{vote_count.candidate.name}|{vote_count.candidate.party}|{vote_count.candidate.address}|{voting_date}|{vote_count.count + 1}\n'
+                        temp_file.write(result)  
+                    else:
+                        result = f'{vote_count.candidate.id}|{vote_count.candidate.name}|{vote_count.candidate.party}|{vote_count.candidate.address}|{voting_date}|{vote_count.count}\n'  
+                        temp_file.write(result)
+        except FileNotFoundError:
+            result = f'{candidate_id}|{candidate.name}|{candidate.party}|{candidate.address}|{voting_date}|1\n'  
+            temp_file.write(result)
+            temp_file.close()
+            found = True 
+            
+        if not found:
+            result = f'{candidate_id}|{candidate.name}|{candidate.party}|{candidate.address}|{voting_date}|1\n'  
+            temp_file.write(result)
+        
+        temp_file.close()
+        if os.path.exists(VOTER_COUNT_FILE_NAME):
+            os.remove(VOTER_COUNT_FILE_NAME)
+        
+        if os.path.exists(TEMPORARY_FILE_NAME):
+            os.rename(TEMPORARY_FILE_NAME, VOTER_COUNT_FILE_NAME)
+        
+        print('----------------------------------------------------')
+        print('✔️      You have successfully cast your vote      ✔️')
+        print('----------------------------------------------------')
+        
+        Menu.displayMainMenu()
+                
     
     
     def _search(self, id):
