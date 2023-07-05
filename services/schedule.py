@@ -30,6 +30,7 @@ class ElectionScheduleService:
                         datas.append(line.removesuffix("\n").split("|"))
                         
             print(tabulate(datas, headers='firstrow'))
+            print('\n')
             
         except FileNotFoundError:
             print(f'\n❌ The {ELECTION_SCHEDULE_NAME} file does not exists. ❌\n')
